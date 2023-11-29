@@ -1,0 +1,14 @@
+R
+node_modules
+*.pyc
+__pycache__
+anon_base_shipment_data.csv
+s3-access.py local_results.csv
+forecast_poc_v2.R
+forecast_poc.R
+local_dataframe.csv
+poc.R
+R-spark.R
+.*
+!.gitignore
+!.experiments
