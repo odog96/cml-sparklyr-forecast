@@ -1,3 +1,35 @@
+##########################################################
+# Local Mode Time Series Forecasting with Sparklyr in R
+##########################################################
+
+# Description:
+# This script executes time series forecasting in Spark's local mode using Sparklyr in R. It showcases 
+# the application of a custom ARIMA-based forecasting function to a dataset grouped by unique identifiers. 
+# The script is designed to measure the impact of processing varying numbers of data subsets on execution time, 
+# providing insights into scalability and performance.
+
+# Key Steps:
+# 1. Install and load essential R packages (Sparklyr, Lubridate, Forecast, Arrow, Purrr).
+# 2. Configure Sparklyr for local mode execution.
+# 3. Read a pre-processed CSV file into a Spark DataFrame for forecasting.
+# 4. Define custom forecasting functions for ARIMA modeling with external regressors.
+# 5. Apply forecasting to different subsets of data, tracking execution times.
+# 6. Store and analyze execution time metrics to understand performance scalability.
+# 7. Save processed results as a local CSV file for external use.
+
+# Objectives:
+# - To utilize Sparklyr for efficient time series forecasting in a local Spark environment.
+# - To analyze the effect of data subset size on the computational performance of forecasting routines.
+# - To demonstrate integration of Sparklyr with time series forecasting techniques in R.
+
+# Usage Notes:
+# - This script is intended for local execution and testing purposes.
+# - Performance results are specific to the machine's specifications and may vary across different setups.
+
+##########################################################
+# Begin Script
+##########################################################
+
 install.packages("sparklyr")
 install.packages("lubridate")
 install.packages("forecast")
@@ -42,21 +74,7 @@ filtered_new <- spark_read_csv(sc, "cpg_t_series",
 # function takes in df and horizon, creates a forecast, returns 
 # as df with new dates and forecasted values
 
-test_fx <- function(df) {
-    head_df <- head(df)
-    return(head_df)
-}
-# test_fx works
-
-#test_2_fx <- function(df, horizon = 18) {
-#    print(head(df))
-#    #target_series <- ts(df$Base_Units, frequency = 52)
-#    return(head(df))
-#}
-
 mvar_fcast_fx <- function(df, horizon = 18) {
-    #library(forecast)
-    #print(head(df))
     target_series <- ts(df$Base_Units, frequency = 52)
     predictors <- cbind(df$Day, df$Month, df$Year, df$Random_Number)
   
@@ -159,7 +177,7 @@ for (n in iteration_values) {
 print(results)
 
 
-write.csv(local_data, "local_results.csv")
+write.csv(results, "local_results.csv")
 
 
 ########### Spark Apply approach with n unique_id##########################

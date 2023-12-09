@@ -1,0 +1,5 @@
+install.packages("vctrs")
+install.packages("sparklyr")
+install.packages("forecast")
+install.packages("lubridate")
+install.packages("arrow")
