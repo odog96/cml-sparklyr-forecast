@@ -56,10 +56,6 @@ config$spark.sql.extensions="com.qubole.spark.hiveacid.HiveAcidAutoConvertExtens
 config$spark.kryo.registrator="com.qubole.spark.hiveacid.util.HiveAcidKyroRegistrator"
 config$sparklyr.jars.default <- "/opt/spark/optional-lib/hive-warehouse-connector-assembly.jar"
 
-#sc <- spark_connect(config = config, packages = c())
-#sc <- spark_connect(maste = "local", config = config,packages = c())
-#sc <- spark_connect(master = "local[*]", config = config)  # 'local[*]'
-
 sc <- spark_connect(config = config)
 
 local_path = "/home/cdsw/local_df.csv"

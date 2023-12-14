@@ -19,11 +19,6 @@
 # Note: The script is designed to run in an environment where Sparklyr is configured to access a Spark cluster and an S3 bucket.
 ##########################################################
 
-
-install.packages("sparklyr")
-install.packages("lubridate")
-install.packages("forecast")
-
 install.packages("arrow")
 library(sparklyr)
 library(dplyr)
@@ -44,9 +39,9 @@ config$spark.sql.extensions="com.qubole.spark.hiveacid.HiveAcidAutoConvertExtens
 config$spark.kryo.registrator="com.qubole.spark.hiveacid.util.HiveAcidKyroRegistrator"
 config$sparklyr.jars.default <- "/opt/spark/optional-lib/hive-warehouse-connector-assembly.jar"
 #config$spark.yarn.access.hadoopFileSystems="s3a://jmsmucker"
-config$spark.kerberos.access.hadoopFileSystems="s3a://jmsmucker"
+config$spark.kerberos.access.hadoopFileSystems="s3a://yourbucket"
 
-hdfs_path <- "s3a://jmsmucker/data/landing/anon_base_shipment_data.csv"
+hdfs_path <- "s3a://you_path/data.csv"
 
 sc <- spark_connect(config = config, packages = c())
 
@@ -125,13 +120,28 @@ filtered_new <- filtered_new %>%
 filtered_new <- filtered_new %>%
                          arrange(unique_id, Date)
 
-# Assuming 'filtered_data' is your Spark DataFrame collected into R
+# 
 local_data <- filtered_new %>% collect()
 
 ########################################################
-
+# 3 options for saving  below
+# regular spark write to s3
+# spark write to a single file in s3
+# local save
+# chose 1
 #######################################################
+# 1 s3 write 
+write_path <- "s3a://bucket/filtered_data.csv"
+spark_write_csv(filtered_new, path = write_path)
 
-############################
+# 2 s3 write - writing to single file
+write_path2 <- "s3a://bucket/data/landing/filtered_data2.csv"
+single_partition <- sdf_coalesce(filtered_new, 1)
+spark_write_csv(filtered_new, path = write_path2)
+
+# 3 local save
 
 write.csv(local_data, "local_df.csv")
+
+
+spark_disconnect(sc)

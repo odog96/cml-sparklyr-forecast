@@ -72,6 +72,8 @@ mvar_fcast_fx <- function(df,context) {
     print("class of input df")
     print(class(df))
   
+    print(nrow(df))
+  
     # Access context contents
     test_fx = context$test_fx
     horizon = context$horizon
@@ -122,7 +124,7 @@ mvar_fcast_fx <- function(df,context) {
 #######################################################
 # run with x unique_ids
 
-select_2 = unique(local_data$unique_id)[1:2]
+select_2 = unique(local_data$unique_id)[1:11]
 
 smaller_data <- local_data %>%
                 filter(unique_id %in% select_2)
