@@ -2,6 +2,14 @@
 This project shows an example of use SparklyR with CML to access large datasets from S3 (can be other object store)
 and then 
 
+
+**next steps**
+
+execute install_packages as a job. include in yaml
+
+make forecast_prep into a job. One that can later be scheduled weekly
+
+
 - forecast_prep.R - reads from s3 location main file ~ 40MB dataset, does some data preparation. 
   Creates a filtered dataset that contains products that have all 156 weeks of data.
 - forecast_local.R - reads the filtered dataset. Creates forecasting functions, runs forecast for 

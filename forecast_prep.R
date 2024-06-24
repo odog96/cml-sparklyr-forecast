@@ -1,147 +1,95 @@
-##########################################################
-# Spark Data Processing and Forecasting Script
-##########################################################
+# Run this once
+install.packages("sparklyr")
 
-# Description:
-# This script performs data processing and forecasting using Sparklyr in R. 
-# It reads data from an S3 bucket, applies various data preparation steps, 
-# and finally saves a processed version of the data locally.
-
-# Key Steps:
-# 1. Install and load necessary R packages for Spark interaction, data manipulation, and forecasting.
-# 2. Set up Spark configuration for connecting to a Spark cluster and accessing data from an S3 bucket.
-# 3. Connect to Spark and read data from a specified path in the S3 bucket into a Spark DataFrame.
-# 4. Perform data preparation steps, including filtering data based on certain conditions and transforming date fields.
-# 5. Add new features to the data such as day, month, year, and random numbers, and generate a unique identifier for each record.
-# 6. Arrange the data and collect the final processed DataFrame into the local R environment.
-# 7. Save the processed data as a CSV file locally for further use or analysis.
-
-# Note: The script is designed to run in an environment where Sparklyr is configured to access a Spark cluster and an S3 bucket.
-##########################################################
-
-install.packages("arrow")
 library(sparklyr)
 library(dplyr)
 library(lubridate)
-library(arrow)
-library(forecast)
 
-#####################################################################
-# Configurations
-######################################################################
-
+# Spark configuration
 config <- spark_config()
-config$spark.security.credentials.hiveserver2.enabled="false"
-config$spark.datasource.hive.warehouse.read.via.llap="false"
-config$spark.r.libpaths=c("/home/cdsw/.local/lib/R/4.3/library")
-config$spark.sql.hive.hwc.execution.mode="spark"
-config$spark.sql.extensions="com.qubole.spark.hiveacid.HiveAcidAutoConvertExtension"
-config$spark.kryo.registrator="com.qubole.spark.hiveacid.util.HiveAcidKyroRegistrator"
+config$spark.security.credentials.hiveserver2.enabled <- "false"
+config$spark.datasource.hive.warehouse.read.via.llap <- "false"
+config$spark.sql.hive.hwc.execution.mode <- "spark"
+config$spark.sql.extensions <- "com.qubole.spark.hiveacid.HiveAcidAutoConvertExtension"
+config$spark.kryo.registrator <- "com.qubole.spark.hiveacid.util.HiveAcidKyroRegistrator"
 config$sparklyr.jars.default <- "/opt/spark/optional-lib/hive-warehouse-connector-assembly.jar"
-#config$spark.yarn.access.hadoopFileSystems="s3a://jmsmucker"
-config$spark.kerberos.access.hadoopFileSystems="s3a://yourbucket"
+config$spark.yarn.access.hadoopFileSystems <- "s3a://go01-demo/datalake/warehouse/tablespace/managed/hive"
 
-hdfs_path <- "s3a://you_path/data.csv"
+# Connect to Spark
+sc <- spark_connect(config = config)
 
-sc <- spark_connect(config = config, packages = c())
+# Specify S3 bucket and file path
+s3_path <- "s3a://go01-demo/data/iowa-liquor-sales/Iowa_Liquor_Sales.csv"
 
-cpg_data <- spark_read_csv(sc, path = hdfs_path)
+# Read the dataset from S3 into Spark
+sales_tbl <- spark_read_csv(sc, name = "sales_data", path = s3_path, header = TRUE, infer_schema = TRUE)
+
+# Rename columns to lowercase
+sales_data <- sales_tbl %>%
+  rename_with(tolower)
+
+# EDA - Get summary stats
+distinct_stores <- sales_data %>%
+  select(store_number) %>%
+  distinct() %>%
+  collect()
+
+# Aggregate by store and date, summing sale_dollars
+aggregated_df <- sales_data %>%
+  group_by(store_number, date) %>%
+  summarize(total_sales = sum(sale_dollars), .groups = 'drop')
+
+print(class(aggregated_df))  # Check class of aggregated_df
+
+# Collect the results back to R
+aggregated_result <- collect(aggregated_df)
+
+# Convert date column to Date format
+aggregated_result$date <- as.Date(aggregated_result$date, format = "%m/%d/%Y")
+
+# Create a new column for the week
+aggregated_result <- aggregated_result %>%
+  mutate(week = floor_date(date, unit = "week"))
+
+# Aggregate the data by store and week
+weekly_aggregated_result <- aggregated_result %>%
+  group_by(store_number, week) %>%
+  summarize(
+    total_sales = sum(total_sales, na.rm = TRUE),
+    .groups = 'drop'
+  )
 
 
-###### Data Prep Steps #########################
-# Filter for combinations that only have all available dates
-# Change date to date format
-# add 4 new features - day, month, year, and random
-# add a unique id
-###############################################
-
-# distinct date count
-date_count = cpg_data %>% 
-    select(Date) %>% 
-    distinct() %>% 
-    arrange(desc(Date))%>% sparklyr::sdf_nrow()
-
-# Group, summarize, filter for count = date_count
-cpg_data_small <- cpg_data %>% 
-                  group_by(PPG, Planning_Account) %>% 
-                  summarise(count = n()) %>%
-                  filter(count == date_count) %>%
-                  arrange(desc(count)) 
-
-# Create a smaller DataFrame with only specific combinations of PPG and Planning_Account
-filtered_data <- cpg_data %>%
-                  semi_join(cpg_data_small, by = c("PPG", "Planning_Account"))
-
-#Extract unique dates
-new_date <- filtered_data %>%
-            select(Date) %>%
-            distinct() %>%
-            collect()
-
-## converting date time format
-# Define a custom function to convert the date string to a date type
-
+# Define a custom function to add new features
 new_features <- function(df) {
-  df$Date_new <- as.Date(df$Date, format = "%m/%d/%Y")
-  df$Day <- day(df$Date_new)
-  df$Month <- month(df$Date_new)
-  df$Year <- year(df$Date_new)
-  df$Random_Number <- runif(nrow(df), min = 0, max = 1)
-  return(df)
+  df %>%
+    mutate(
+      date_new = as.Date(week, format = "%m/%d/%Y"),
+      day = day(date_new),
+      month = month(date_new),
+      year = year(date_new),
+      random_number = runif(n())
+    )
 }
 
-# Apply conversion function
-new_feat_df <- new_features(new_date)
+# Apply new features function
+native_df <- new_features(weekly_aggregated_result)
 
-# Convert new_date back to a Spark DataFrame if it's not already
-new_date_spark <- copy_to(sc, new_feat_df, "new_date", overwrite = TRUE)
+# Rename date_new to date
+native_df <- native_df %>%
+  rename(date = date_new)
 
-filtered_data_with_new_date <- filtered_data %>%
-                               left_join(new_date_spark, by = c("Date" = "Date"))
+# Ensure date column is in Date format
+#native_df$date <- as.Date(native_df$date)
 
-# Remove the old Date field
-filtered_new <- filtered_data_with_new_date %>%
-              select(-Date) %>%
-              rename(Date = Date_new)
-
-# Clean up unused large dfs
-rm(filtered_data_with_new_date)
-rm(new_date_spark)
-rm(new_feat_df)
-
-#  add an id for each unique set to be forecast, then sort
-filtered_new <- filtered_new %>%
-                  mutate(unique_id = paste(PPG, Planning_Account, sep = "_")) 
-
-# View the result
-#print(colnames(filtered_new))
-
-# sort dataframe by date
-filtered_new <- filtered_new %>%
-                         arrange(unique_id, Date)
-
-# 
-local_data <- filtered_new %>% collect()
-
-########################################################
-# 3 options for saving  below
-# regular spark write to s3
-# spark write to a single file in s3
-# local save
-# chose 1
-#######################################################
-# 1 s3 write 
-write_path <- "s3a://bucket/filtered_data.csv"
-spark_write_csv(filtered_new, path = write_path)
-
-# 2 s3 write - writing to single file
-write_path2 <- "s3a://bucket/data/landing/filtered_data2.csv"
-single_partition <- sdf_coalesce(filtered_new, 1)
-spark_write_csv(filtered_new, path = write_path2)
-
-# 3 local save
-
-write.csv(local_data, "local_df.csv")
+native_df <- native_df %>% select(-week)
 
 
+# Print number of rows in weekly_df
+print(nrow(native_df))
+
+# Write to CSV without row names
+write.csv(native_df, "local_df.csv", row.names = FALSE)
+
+# Disconnect from Spark
 spark_disconnect(sc)
