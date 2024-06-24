@@ -1,10 +1,3 @@
-#install.packages("sparklyr")
-#install.packages("lubridate")
-#install.packages("dplyr")
-#install.packages("forecast")
-#install.packages("arrow")
-#install.packages("vctrs")
-
 library(lubridate)
 library(sparklyr)
 library(dplyr)
