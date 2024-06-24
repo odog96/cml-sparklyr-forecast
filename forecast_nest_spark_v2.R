@@ -60,7 +60,7 @@ test_fx = function(df) {
   return(colnames(df))
 }
 
-#mvar_fcast_fx <- function(df,horizon) {
+
 mvar_fcast_fx <- function(df,context) {
   library(sparklyr)
   library(dplyr)

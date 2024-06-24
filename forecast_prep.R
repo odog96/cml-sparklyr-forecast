@@ -1,6 +1,3 @@
-# Run this once
-install.packages("sparklyr")
-
 library(sparklyr)
 library(dplyr)
 library(lubridate)
@@ -59,7 +56,6 @@ weekly_aggregated_result <- aggregated_result %>%
     .groups = 'drop'
   )
 
-
 # Define a custom function to add new features
 new_features <- function(df) {
   df %>%
@@ -79,13 +75,45 @@ native_df <- new_features(weekly_aggregated_result)
 native_df <- native_df %>%
   rename(date = date_new)
 
-# Ensure date column is in Date format
-#native_df$date <- as.Date(native_df$date)
-
+# Remove week column
 native_df <- native_df %>% select(-week)
 
+# Check that all dates for each store are valid and exclude stores with invalid dates
+native_df <- native_df %>%
+  filter(!is.na(date))
 
-# Print number of rows in weekly_df
+# Check the max date in the entire dataset
+max_date <- max(native_df$date)
+
+# Include only stores that contain this last date
+stores_with_max_date <- native_df %>%
+  filter(date == max_date) %>%
+  pull(store_number) %>%
+  unique()
+
+native_df <- native_df %>%
+  filter(store_number %in% stores_with_max_date)
+
+# Check for date completeness and fill missing weeks with 0 sales
+complete_weeks <- seq.Date(min(native_df$date), max_date, by = "week")
+store_numbers <- unique(native_df$store_number)
+
+complete_data <- expand.grid(
+  store_number = store_numbers,
+  date = complete_weeks
+)
+
+native_df <- complete_data %>%
+  left_join(native_df, by = c("store_number", "date")) %>%
+  mutate(
+    total_sales = ifelse(is.na(total_sales), 0, total_sales),
+    day = ifelse(is.na(day), day(date), day),
+    month = ifelse(is.na(month), month(date), month),
+    year = ifelse(is.na(year), year(date), year),
+    random_number = ifelse(is.na(random_number), runif(1, min = 0, max = 1), random_number)
+  )
+
+# Print number of rows in native_df
 print(nrow(native_df))
 
 # Write to CSV without row names
