@@ -3,7 +3,7 @@ node_modules
 *.pyc
 __pycache__
 archive/
-local_df.csv
+*.csv
 .*
 !.gitignore
 !.experiments
