@@ -5,16 +5,15 @@ and then
 
 **next steps**
 
+### This repository contains scripts for processing and forecasting sales data using Spark. The pipeline includes data preparation and forecasting steps, leveraging Sparklyr for scalable data processing and ARIMA models for forecasting future sales.
+
 execute install_packages as a job. include in yaml
 
 make forecast_prep into a job. One that can later be scheduled weekly
 
 
-- forecast_prep.R - reads from s3 location main file ~ 40MB dataset, does some data preparation. 
-  Creates a filtered dataset that contains products that have all 156 weeks of data.
-- forecast_local.R - reads the filtered dataset. Creates forecasting functions, runs forecast for 
-  n products in local mode.
-- forecast_spark.R - reads the filtered dataset. Creates forecasting functions, runs forecast for 
-  n products in spark distributed mode. Note existing code configurations can be modified to run 
-  larger workloads by further spark tuining
-- local_df.csv - represents the filtered file (post s3 read and transformations)
+- forecast_prep.R - This script sets up the Spark configuration and connects to a specified S3 bucket to read sales data. It processes the data by renaming columns, aggregating sales by store and week, and ensuring data completeness before saving the processed data to a local CSV file.
+
+- forecast_spark.R - This script loads the processed sales data from a local CSV file into Spark for forecasting. 
+It defines a function to forecast future sales using an ARIMA model with external regressors, applies this function to the data, 
+and saves the forecast results to a CSV file. Larger workloads by further spark tuning.
