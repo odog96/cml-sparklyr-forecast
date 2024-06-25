@@ -14,11 +14,16 @@ runtimes:
 tasks:
   - type: run_session
     name: Install Dependencies
-    script: ./install_packages.R 
+    script: |
+      echo "Current directory:"
+      pwd
+      echo "Files in the directory:"
+      ls -la
+      Rscript install_packages.R
     short_summary: Install Dependencies
-     #kernel: R 4.3
     cpu: 2
     memory: 8
+
 
   - type: create_job
     name: Read and transform sales data
