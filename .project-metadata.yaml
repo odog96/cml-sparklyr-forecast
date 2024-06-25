@@ -1,4 +1,4 @@
-name: LLM Hands on Lab with CML
+name: Forecasting setup using Sparklyr
 description: "Forecasting setup using Sparklyr"
 author: "Cloudera"
 date: "2024-06-25"
@@ -14,7 +14,7 @@ runtimes:
 tasks:
   - type: run_session
     name: Install Dependencies
-    script: install_packages.R
+    script: ./install_packages.R 
     short_summary: Install Dependencies
      #kernel: R 4.3
     cpu: 2
@@ -23,7 +23,7 @@ tasks:
   - type: create_job
     name: Read and transform sales data
     entity_label: transform
-    script: fc_prep.R
+    script: ./fc_prep.R
     arguments: None
     short_summary: Read and transform sales data 
     cpu: 2
