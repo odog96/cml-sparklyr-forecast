@@ -19,7 +19,6 @@ tasks:
 #     #kernel: R 4.3
 #     cpu: 2
 #     memory: 8
-
   - type: create_job
     name: Read and transform sales data
     entity_label: transform
