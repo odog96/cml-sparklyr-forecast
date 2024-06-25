@@ -1,0 +1,32 @@
+name: LLM Hands on Lab with CML
+description: "Forecasting setup using Sparklyr"
+author: "Cloudera"
+date: "2024-06-25"
+specification_version: 1.0
+prototype_version: 1.0
+environment_variables:
+
+runtimes: 
+  - editor: PBJ Workbench
+    kernel: R 4.3
+    edition: Standard
+  
+tasks:
+  - type: run_session
+    name: Install Dependencies
+    script: install_packages.R
+    short_summary: Install Dependencies
+    kernel: R 4.3
+    cpu: 2
+    memory: 4
+
+  - type: create_job
+    name: Read and transform sales data
+    entity_label: transform
+    script: fc_prep.R
+    arguments: None
+    short_summary: Read and transform sales data 
+    cpu: 2
+    memory: 4
+    environment:
+      TASK_TYPE: CREATE/RUN_JOB
