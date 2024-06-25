@@ -3,6 +3,10 @@ node_modules
 *.pyc
 __pycache__
 archive/
+.jupyter
+.Rprofile
+.bash_history
+.gitignore
 *.csv
 !.gitignore
 !.experiments
