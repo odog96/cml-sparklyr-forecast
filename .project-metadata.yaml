@@ -16,9 +16,9 @@ tasks:
     name: Install Dependencies
     script: install_packages.R
     short_summary: Install Dependencies
-    kernel: R 4.3
+    #kernel: R 4.3
     cpu: 2
-    memory: 4
+    memory: 8
 
   - type: create_job
     name: Read and transform sales data
@@ -27,6 +27,6 @@ tasks:
     arguments: None
     short_summary: Read and transform sales data 
     cpu: 2
-    memory: 4
+    memory: 8
     environment:
       TASK_TYPE: CREATE/RUN_JOB
