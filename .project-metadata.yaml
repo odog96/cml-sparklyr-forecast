@@ -11,7 +11,7 @@ runtimes:
     kernel: R 4.3
     edition: Standard
   
-# tasks:
+tasks:
 #   - type: run_session
 #     name: Install Dependencies
 #     script: install_packages.R
