@@ -11,14 +11,14 @@ runtimes:
     kernel: R 4.3
     edition: Standard
   
-tasks:
-  - type: run_session
-    name: Install Dependencies
-    script: install_packages.R
-    short_summary: Install Dependencies
-    #kernel: R 4.3
-    cpu: 2
-    memory: 8
+# tasks:
+#   - type: run_session
+#     name: Install Dependencies
+#     script: install_packages.R
+#     short_summary: Install Dependencies
+#     #kernel: R 4.3
+#     cpu: 2
+#     memory: 8
 
   - type: create_job
     name: Read and transform sales data
@@ -29,4 +29,5 @@ tasks:
     cpu: 2
     memory: 8
     environment:
-      TASK_TYPE: CREATE/RUN_JOB
+      TASK_TYPE: CREATE
+      #/RUN_JOB
