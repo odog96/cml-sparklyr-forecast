@@ -12,6 +12,15 @@ runtimes:
     edition: Standard
   
 tasks:
+  - type: run_session
+    name: Install Dependencies
+    script: install_packages.R
+    kernel: R 4.3
+    edition: Standard
+    version: 2024.02
+    short_summary: Install Dependencies
+    cpu: 2
+    memory: 8
 #   - type: run_session
 #     name: Install Dependencies
 #     script: |
@@ -28,11 +37,10 @@ tasks:
   - type: create_job
     name: Read and transform sales data
     entity_label: transform
-    script: ./fc_prep.R
+    script: fc_prep.R
     arguments: None
     short_summary: Read and transform sales data 
     cpu: 2
     memory: 8
     environment:
-      TASK_TYPE: CREATE
-      #/RUN_JOB
+      TASK_TYPE: CREATE/RUN_JOB
