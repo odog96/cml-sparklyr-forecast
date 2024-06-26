@@ -11,18 +11,18 @@ runtimes:
     kernel: R 4.3
     edition: Standard
   
-tasks:
-  - type: run_session
-    name: Install Dependencies
-    script: |
-      echo "Current directory:"
-      pwd
-      echo "Files in the directory:"
-      ls -la
-      Rscript install_packages.R
-    short_summary: Install Dependencies
-    cpu: 2
-    memory: 8
+# tasks:
+#   - type: run_session
+#     name: Install Dependencies
+#     script: |
+#       echo "Current directory:"
+#       pwd
+#       echo "Files in the directory:"
+#       ls -la
+#       Rscript install_packages.R
+#     short_summary: Install Dependencies
+#     cpu: 2
+#     memory: 8
 
 
   - type: create_job
