@@ -12,15 +12,27 @@ runtimes:
     edition: Standard
   
 tasks:
-  - type: run_session
+  - type: create_job
     name: Install Dependencies
+    entity_label: Install Dependencies
     script: install_packages.R
-    kernel: R 4.3
-    edition: Standard
-    version: 2024.02
+    arguments: None
     short_summary: Install Dependencies
     cpu: 2
     memory: 8
+    environment:
+      TASK_TYPE: CREATE/RUN_JOB
+  
+
+  # - type: run_session
+  #   name: Install Dependencies
+  #   script: install_packages.R
+  #   kernel: R 4.3
+  #   edition: Standard
+  #   version: 2024.02
+  #   short_summary: Install Dependencies
+  #   cpu: 2
+  #   memory: 8
 #   - type: run_session
 #     name: Install Dependencies
 #     script: |
