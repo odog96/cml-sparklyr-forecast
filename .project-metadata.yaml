@@ -4,19 +4,17 @@ author: "Cloudera"
 date: "2024-06-25"
 specification_version: 1.0
 prototype_version: 1.0
-environment_variables:
 
 runtimes: 
   - editor: PBJ Workbench
     kernel: R 4.3
     edition: Standard
-  
+
 tasks:
   - type: create_job
     name: Install Dependencies
     entity_label: Install-Dependencies
     script: install_packages.R
-    arguments: None
     short_summary: Install Dependencies
     cpu: 2
     memory: 8
@@ -27,8 +25,7 @@ tasks:
     name: Read and transform sales data
     entity_label: transform
     script: fc_prep.R
-    arguments: None
-    short_summary: Read and transform sales data 
+    short_summary: Read and transform sales data
     cpu: 2
     memory: 8
     environment:
