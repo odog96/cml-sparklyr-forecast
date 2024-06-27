@@ -11,16 +11,16 @@ runtimes:
     edition: Standard
 
 tasks:
-  - type: create_job
-    name: Install Dependencies
-    entity_label: Install-Dependencies
-    script: install_packages.R
-    short_summary: Install Dependencies
-    cpu: 2
-    memory: 8
-    environment:
-      TASK_TYPE: CREATE/RUN_JOB
-
+  # - type: create_job
+  #   name: Install Dependencies
+  #   entity_label: Install-Dependencies
+  #   script: install_packages.R
+  #   short_summary: Install Dependencies
+  #   cpu: 2
+  #   memory: 8
+  #   environment:
+  #     TASK_TYPE: CREATE
+      
   - type: create_job
     name: Read and transform sales data
     entity_label: transform
@@ -29,4 +29,5 @@ tasks:
     cpu: 2
     memory: 8
     environment:
-      TASK_TYPE: CREATE/RUN_JOB
+      TASK_TYPE: CREATE
+      #/RUN_JOB
