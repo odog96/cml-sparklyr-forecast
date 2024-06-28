@@ -15,21 +15,11 @@ tasks:
     name: Install Dependencies
     script: install_packages.R
     short_summary: Install Dependencies
-     #kernel: R 4.3
     cpu: 2
     memory: 8
-  # - type: create_job
-  #   name: Install Dependencies
-  #   entity_label: Install-Dependencies
-  #   script: install_packages.R
-  #   short_summary: Install Dependencies
-  #   cpu: 2
-  #   memory: 8
-  #   environment:
-  #     TASK_TYPE: CREATE
-      
+    
   - type: create_job
-    name: Read and transform sales data
+    name: Prepare Data
     entity_label: transform
     script: fc_prep.R
     short_summary: Read and transform sales data
@@ -37,4 +27,13 @@ tasks:
     memory: 8
     environment:
       TASK_TYPE: CREATE
-      #/RUN_JOB
+      
+  - type: create_job
+    name: Forecast
+    entity_label: Forecast
+    script: fc_spark.R
+    short_summary: Forecast sales data
+    cpu: 2
+    memory: 8
+    environment:
+      TASK_TYPE: CREATE
