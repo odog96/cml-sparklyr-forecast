@@ -28,16 +28,6 @@ tasks:
     environment:
       TASK_TYPE: CREATE
       
-  - type: create_job
-    name: Forecast Data
-    entity_label: Forecast
-    script: fc_spark.R
-    short_summary: Forecast sales data
-    cpu: 2
-    memory: 8
-    environment:
-      TASK_TYPE: CREATE      
-      
   # - type: create_job
   #   name: Forecast
   #   entity_label: Forecast
